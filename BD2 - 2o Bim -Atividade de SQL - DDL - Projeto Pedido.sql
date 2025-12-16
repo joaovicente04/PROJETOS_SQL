@@ -298,4 +298,652 @@ FROM DEMO.CAPACIDADE_ESTOQUE ;
 
 COMMIT;
 
+--1
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 207,
+       NUMERO,
+       100,
+       10.00
+FROM PEDIDO
+WHERE MOD(NUMERO, 2) = 0
+  AND EXTRACT(YEAR FROM DATA) < 2018;
+
+--2  
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT  206,
+        NUMERO,
+        50,
+        12.00
+FROM PEDIDO
+WHERE MOD(NUMERO,2) != 0
+AND EXTRACT(YEAR FROM DATA) = 2018;
+
+--3
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 207,
+       NUMERO,
+       150,
+       14.00
+FROM PEDIDO
+WHERE MOD(NUMERO, 2) = 0
+  AND EXTRACT(YEAR FROM DATA) = 2018;
+  
+ --4 
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT  206,
+        NUMERO,
+        200,
+        8.00
+FROM PEDIDO
+WHERE MOD(NUMERO,2) != 0
+AND EXTRACT(YEAR FROM DATA) < 2018;
+
+--5
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 208,
+       NUMERO,
+       80,
+       18.00
+FROM PEDIDO
+WHERE RUA IS NULL
+  AND EXTRACT(YEAR FROM DATA) = 2017;
+  
+--6
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 208,
+       NUMERO,
+       70,
+       20.00
+FROM PEDIDO
+WHERE RUA IS NULL
+  AND EXTRACT(YEAR FROM DATA) = 2018;
+  
+--7
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 202,
+       NUMERO,
+       60,
+       15.00
+FROM PEDIDO
+WHERE RUA IS NOT NULL
+  AND MOD(EXTRACT(DAY FROM PRAZO_ENTREGA), 2) != 0;
+  
+--8
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 205,
+       NUMERO,
+       90,
+       11.50
+FROM PEDIDO
+WHERE RUA IS NOT NULL
+  AND MOD(EXTRACT(DAY FROM PRAZO_ENTREGA), 2) = 0;
+  
+--9
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 203,
+       NUMERO,
+       550,
+       21.35
+FROM PEDIDO
+WHERE RUA IS NOT NULL
+  AND MOD(EXTRACT(DAY FROM PRAZO_ENTREGA), 2) != 0;
+  
+--10
+INSERT INTO ITEM_PRODUTO (CODIGO_PRO, NUMERO_PED, QUANTIDADE, PRECO_UNITARIO)
+SELECT 204,
+       NUMERO,
+       150,
+       25.85
+FROM PEDIDO
+WHERE RUA IS NULL
+  AND MOD(EXTRACT(DAY FROM DATA), 2) = 0;
+
+COMMIT;
+
+--A)
+UPDATE ITEM_PRODUTO
+SET QUANTIDADE = QUANTIDADE * 2
+WHERE NUMERO_PED > 20 AND NUMERO_PED < 50
+  AND CODIGO_PRO BETWEEN 203 AND 205;
+  
+--B)
+UPDATE ITEM_PRODUTO
+SET QUANTIDADE = QUANTIDADE + 15
+WHERE NUMERO_PED IN (SELECT NUMERO FROM PEDIDO
+        WHERE MOD(CODIGO_CLI, 2) != 0
+        AND MOD(MATRICULA_VEN, 2) = 0);
+DESC ITEM_PRODUTO;
+
+--C)
+UPDATE ITEM_PRODUTO
+SET PRECO_UNITARIO = PRECO_UNITARIO - 0.50
+WHERE MOD(NUMERO_PED, 3) = 0;
+
+--D)
+UPDATE ITEM_PRODUTO
+SET VALOR_ITEM = QUANTIDADE * PRECO_UNITARIO;
+
+--E)
+UPDATE PEDIDO
+SET TOTAL_FATURA = (SELECT SUM(VALOR_ITEM)
+        FROM ITEM_PRODUTO
+        WHERE ITEM_PRODUTO.NUMERO_PED = PEDIDO.NUMERO);
+  
+COMMIT;
+
+--SELECT  DATA,
+        --AVG(NUMERO) AS MEDIO_VALOR,
+        --SUM(NUMERO) AS SOMA_VALOR,
+        --MIN(NUMERO) AS MENOR_VALOR,
+        --MAX(NUMERO) AS MAIOR_VALOR,
+        --COUNT(*) AS QTDE_VALOR
+--FROM PEDIDO
+--WHERE MOD(NUMERO,2) = 1
+--GROUP BY CODIGO_CLI,
+--HAVING COUNT(*) = (SELECT MIN(NUMERO_PED) FROM ITEM_PRODUTO)
+--ORDER BY DATA;
+
+--SELECT  CLIENTE.NOME AS CLIENTE,
+        --VENDEDOR.NOME AS VENDEDOR,
+        --AVG(NUMERO) AS MEDIO_VALOR,
+        --SUM(NUMERO) AS SOMA_VALOR,
+        --MIN(NUMERO) AS MENOR_VALOR,
+       -- MAX(NUMERO) AS MAIOR_VALOR,
+        --COUNT(*) AS QTDE_VALOR
+        
+--FROM PEDIDO JOIN
+        --CLIENTE ON PEDIDO.CODIGO_CLI = CLIENTE.CODIGO_CLIENTE JOIN
+        --VENDEDOR ON VENDEDOR.MATRICULA = PEDIDO.MATRICULA_VEN
+        
+        --GROUP BY CLIENTE.NOME,
+        --VENDEDOR.NOME
+--HAVING COUNT(*) >2;
+--DESC VENDEDOR
+
+--DESC PEDIDO;
+
+--A)
+-- DELETANDO OS ITENS FILHOS
+DELETE FROM ITEM_PRODUTO
+WHERE NUMERO_PED IN (SELECT NUMERO FROM PEDIDO
+WHERE MOD(NUMERO, 2) = 1
+AND RUA IS NOT NULL
+AND MATRICULA_VEN = 102);
+    
+DELETE FROM PEDIDO
+WHERE MOD(NUMERO, 2) = 1
+AND RUA IS NOT NULL
+AND MATRICULA_VEN = 102;
+  
+
+--B)
+DELETE FROM ITEM_PRODUTO
+WHERE NUMERO_PED = (SELECT MIN(NUMERO)
+FROM PEDIDO
+WHERE DATA = (SELECT MAX(DATA) FROM PEDIDO));
+        
+        
+--C)
+ROLLBACK;
+
+--1)
+SELECT TABLE_NAME AS TABELA
+FROM USER_TABLES
+ORDER BY TABLE_NAME ASC;
+
+--2)
+SELECT
+table_name    AS TABELA,
+column_name   AS COLUNA,
+data_type     AS TIPO_DADO,
+data_length   AS TAMANHO
+FROM USER_TAB_COLUMNS
+ORDER BY
+TABELA ASC,
+COLUNA DESC
+
+
+--3)
+SELECT
+owner               AS DONO,
+constraint_name     AS CONSTRAINT,
+CONSTRAINT_TYPE     AS TIPO,
+SEARCH_CONDITION AS REGRA
+FROM USER_CONSTRAINTS
+ORDER BY    CONSTRAINT DESC,
+            TIPO ASC;
+
+
+--4)
+SELECT
+owner           AS DONO,
+constraint_name AS CONSTRAINT,
+table_name      AS TABELA,
+column_name     AS COLUNA,
+position        AS POSICAO
+FROM USER_CONS_COLUMNS
+ORDER BY    CONSTRAINT ASC,
+            COLUNA ASC;
+            
+            
+            
+--A) Listar os vendedores . Mostrar: Vendedor (MATRICULA e NOME).Ordenados pelo nome decrescente.
+
+SELECT      MATRICULA,
+            NOME
+FROM VENDEDOR
+ORDER BY NOME DESC;
+
+
+--B)Listar distintamente os clientes PJ. Mostrar: Nome do cliente (CLIENTE), CNPJ e CIDADE onde reside. Ordenados pelo nome do cliente ascendente e, dentro deste, pela cidade descendente
+
+SELECT DISTINCT
+NOME AS     CLIENTE,
+            CNPJ,
+            CIDADE
+FROM CLIENTE
+
+JOIN PJ ON CODIGO_CLIENTE = CODIGO_CLIENTE_PJ
+ORDER BY        CLIENTE ASC,
+                CIDADE DESC;
+
+--C)Listar os vendedores e seus pedidos já realizados com total de fatura entre R$ 1000,00 e R$ 5000,00, inclusive.. Mostrar: Nome do
+-- vendedor (VENDEDOR), número do pedido (PEDIDO),data do pedido (DATA)
+-- com a formatação 'dd/mm/yyyy'. Ordenados pelo nome do vendedor
+-- descendente e, dentro deste, pela data ascendente
+
+SELECT
+NOME AS  VENDEDOR,
+NUMERO AS PEDIDO,
+TO_CHAR(DATA, 'dd/mm/yyyy') AS DATA
+FROM VENDEDOR 
+
+JOIN PEDIDO  ON MATRICULA = MATRICULA_VEN
+
+WHERE TOTAL_FATURA BETWEEN 1000 AND 5000
+
+ORDER BY    VENDEDOR DESC,
+            DATA ASC;
+
+
+--A)
+--Selecionar as constraints criadas da tabela ITEM_PRODUTO. Mostrar:
+-- constraint_name (CONSTRAINT), constraint_type (TIPO) e
+-- search_condition (CONDICAO). Ordenado pelo nome da constraint.
+
+SELECT CONSTRAINT_NAME AS CONSTRAINT, CASE CONSTRAINT_TYPE
+WHEN 'P' THEN 'PRIMARY KEY'
+WHEN 'R' THEN 'FOREIGN KEY'
+WHEN 'U' THEN 'UNIQUE'
+WHEN 'C' THEN 'CHECK'
+ELSE constraint_type
+END             AS TIPO,
+search_condition AS CONDICAO
+FROM USER_CONSTRAINTS
+WHERE TABLE_NAME = 'ITEM_PRODUTO'
+ORDER BY CONSTRAINT ASC;
+
+--B)
+--Criar a view de clientes constante do BD Pedidos (VIEW_CLIENTE)
+-- contendo os dados das tabelas CLIENTE, PF e PJ. Em conformidade com a
+-- estrutura disponível no MER físico do projeto BD de Pedido.
+
+DROP VIEW VIEW_CLIENTE;
+
+CREATE VIEW VIEW_CLIENTE
+AS
+SELECT
+C.CODIGO_CLIENTE,
+C.NOME,
+C.RUA,
+C.NR AS NUMERO,
+C.BAIRRO,
+C.COMPLEMENTO,
+C.CIDADE,
+C.UF,
+C.CEP,
+    
+PF.CNPF,
+PF.RG,
+PF.DATA_NASCIMENTO,
+    
+    
+PJ.CNPJ,
+PJ.IE,
+PJ.NOME_FANTASIA
+    
+FROM CLIENTE C
+
+LEFT JOIN PF ON C.CODIGO_CLIENTE = PF.CODIGO_CLIENTE_PF
+LEFT JOIN PJ ON C.CODIGO_CLIENTE = PJ.CODIGO_CLIENTE_PJ;
+    
+SELECT *
+FROM VIEW_CLIENTE;
+
+COMMIT;
+
+
+--a. Query de consulta no dicionário de dados (catálogo). Selecionar
+-- todas as tabelas do seu usuário (projeto). Mostrar: nome da tabela
+-- (TABELA) ordenado crescente.
+SELECT TABLE_NAME AS TABELA
+FROM USER_TABLES
+ORDER BY TABLE_NAME ASC;
+
+-- b. Fazer uma query para recuperar todos os pedidos cujo total da fatura
+-- seja maior do que R$ 2000,00. Mostrar: numero do pedido (PEDIDO),
+-- DATA, total da fatura (TOTAL), ordenado decrescente pela data do
+-- pedido.
+
+
+SELECT NUMERO AS    PEDIDO,
+                    DATA,
+                    TOTAL_FATURA AS TOTAL
+FROM PEDIDO
+
+WHERE TOTAL_FATURA > 2000
+ORDER BY DATA DESC;
+
+-- c. Fazer uma query para recuperar todos os pedidos cujo total da fatura
+-- seja maior do que R$ 2000,00. Mostrar: nome cliente (CLIENTE), numero
+-- do pedido (PEDIDO),DATA, total da fatura (TOTAL), ordenado crescente
+-- pelo nome do cliente.
+
+SELECT  C.NOME,
+        P.NUMERO,
+        P.DATA,
+        P.TOTAL_FATURA AS TOTAL
+
+FROM CLIENTE C JOIN PEDIDO P ON P.CODIGO_CLI = C.CODIGO_CLIENTE
+
+WHERE TOTAL_FATURA > 2000
+ORDER BY NOME ASC;
+
+COMMIT;
+
+--a. Executar e apresentar a análise do plano de execução da query.
+EXPLAIN PLAN FOR
+SELECT
+P.NUMERO,
+P.DATA,
+P.TOTAL_FATURA AS TOTAL,
+VC.NOME AS CLIENTE,
+VC.CNPF,
+VC.CNPJ
+FROM PEDIDO P
+
+JOIN VIEW_CLIENTE VC ON P.CODIGO_CLI = VC.CODIGO_CLIENTE
+
+WHERE P.TOTAL_FATURA < 10000;
+    
+SELECT* FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+
+-- b. Apresente uma proposta para otimizar a execução query.
+
+DROP INDEX idx_pedido_total_fatura;
+CREATE INDEX idx_pedido_total_fatura ON PEDIDO (TOTAL_FATURA);
+
+DROP INDEX idx_pedido_cod_cli;
+CREATE INDEX idx_pedido_cod_cli ON PEDIDO (CODIGO_CLI);
+
+
+-- c. Executar e apresentar a análise do plano de execução com a proposta apresentada no item b.
+
+EXPLAIN PLAN FOR
+SELECT
+P.NUMERO,
+P.DATA,
+P.TOTAL_FATURA AS TOTAL,
+VC.NOME AS CLIENTE,
+VC.CNPF,
+VC.CNPJ
+FROM PEDIDO P
+
+JOIN VIEW_CLIENTE VC ON P.CODIGO_CLI = VC.CODIGO_CLIENTE
+
+WHERE P.TOTAL_FATURA < 10000;
+
+SELECT* FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+
+-- d. Em termos de custos, qual foi o ganho obtido com sua estratégia de otimização.
+-- O CUSTO DE CPU DIMINUI EM TORNO DE 3%
+COMMIT;
+
+
+-- a. Criar a view que mostra estoque constante no BD Pedidos.
+-- (VIEW_ESTOQUE) contendo os dados indicados no modelo apresentado.
+
+DROP VIEW VIEW_ESTOQUE;
+
+CREATE VIEW VIEW_ESTOQUE
+AS
+SELECT
+P.DESCRICAO AS PRODUTO,
+NVL(entradas.total_adquirido, 0) AS QUANTIDADE_ADQUIRIDA,
+NVL(saidas.total_saida, 0) AS QUANTIDADE_SAIDA,
+(NVL(entradas.total_adquirido, 0) - NVL(saidas.total_saida, 0)) AS DISPONIVEL,P.UNID_MEDIDA
+
+FROM PRODUTO P
+LEFT JOIN
+(SELECT CODIGO_PRO,SUM(QUANTIDADE) AS total_adquirido
+FROM ESTOQUE
+GROUP BY CODIGO_PRO) entradas ON P.CODIGO = entradas.CODIGO_PRO
+LEFT JOIN
+(SELECT CODIGO_PRO,SUM(QUANTIDADE) AS total_saida
+FROM ITEM_PRODUTO
+GROUP BY CODIGO_PRO) saidas ON P.CODIGO = saidas.CODIGO_PRO;
+
+DROP TABLE ALUNOS;
+
+CREATE TABLE ALUNOS
+AS
+SELECT *
+FROM ALUNO.ALUNOS;
+
+CREATE TABLE LOG_ALUNO
+(ACAO   VARCHAR(6),DATA_ALTERACAO DATE);
+
+
+INSERT INTO ALUNOS VALUES (106, 'TESTE NOME ALUNO','01/01/1968','testando_emailxyz.com);
+
+UPDATE ALUNOS SET EMAIL ='TESTE*
+
+
+
+CREATE SEQUENCE SEQ_ID_LOG_ALTERACOES
+START WITH 1
+INCREMENT BY 1;
+
+DROP TABLE LOG_ALTERACOES;
+
+CREATE TABLE Log_Alteracoes (
+    id_log        NUMBER NOT NULL,
+    acao          VARCHAR2(12) NOT NULL,
+    tabela        VARCHAR2(30) NOT NULL,
+    data_Evento   DATE NOT NULL,
+    CONSTRAINT Log_Alteracoes_PK PRIMARY KEY (id_log)
+);
+
+CREATE OR REPLACE TRIGGER TRG_LOG_ALTR_BI
+BEFORE INSERT ON Log_Alteracoes
+FOR EACH ROW
+BEGIN
+IF :NEW.id_log IS NOT NULL THEN
+RAISE_APPLICATION_ERROR(-20001, 'Não é permitido inserir manualmente o ID');
+    
+ELSE
+
+SELECT SEQ_ID_LOG_ALTERACOES.NEXTVAL 
+INTO :NEW.id_log 
+FROM DUAL;
+        
+    END IF;
+END;
+/
+select *
+from alunos;
+
+
+-- a. Fazer uma trigger para manter o log de alterações no banco de dados.
+-- com o nome TRG_LOG_ALTERACOES_BD. Ao realizar uma alteração em uma
+-- tabela qualquer a trigger irá fazer uma inclusão na tabela
+-- LOG_ALTERACOES, onde a ação será em conformidade com o tipo de
+-- alteração (INSERÇÃO, ALTERAÇÃO e/ou DELEÇÃO), incluindo o nome da
+-- tabela e a data alteração.
+DROP TRIGGER TRG_LOG_ALTERACOES_BD;
+
+CREATE OR REPLACE TRIGGER TRG_LOG_ALTERACOES_BD
+AFTER INSERT OR UPDATE OR DELETE ON ALUNOS
+FOR EACH ROW
+DECLARE
+    v_acao VARCHAR2(12);
+    v_tabela VARCHAR2(30) := 'ALUNOS';
+BEGIN
+
+IF INSERTING THEN
+        v_acao := 'INSERÇÃO';
+ELSIF UPDATING THEN
+        v_acao := 'ALTERAÇÃO';
+ELSIF DELETING THEN
+        v_acao := 'DELEÇÃO';
+END IF;
+
+    INSERT INTO Log_Alteracoes (acao, tabela, data_Evento)
+    VALUES (v_acao, v_tabela, SYSDATE);
+END;
+/
+
+-- b. Fazer queries, pelo menos uma para cada ação (INSERÇÃO, ALTERAÇÃO
+-- e/ou DELEÇÃO) na tabela ALUNOS.
+
+INSERT INTO ALUNOS (CODIGO, NOME, DATA_NASCIMENTO, EMAIL) 
+VALUES (200, 'João da Silva', TO_DATE('01/01/1990', 'DD/MM/YYYY'), 'joao@teste.com');
+
+UPDATE ALUNOS 
+SET EMAIL = 'joao.silva@novomail.com' 
+WHERE CODIGO = 200;
+
+DELETE FROM ALUNOS 
+WHERE CODIGO = 200;
+
+-- C. Fazer uma query para verificar os logs registrados nas ações do item b.
+
+SELECT *
+FROM Log_Alteracoes;
+
+COMMIT;
+
+
+
+-- a. Implementar uma solução para não permitir que sejam incluídos mais
+-- produtos em item_produtos de pedidos do que a disponibilidade
+-- existente no Estoque.
+-- Fazer tratamento com mensagem de informação para o usuário indicando
+-- o motivo para a não inclusão de produtos em itens dos pedidos.
+
+CREATE OR REPLACE TRIGGER TRG_VALIDA_ESTOQUE_BI
+BEFORE INSERT ON ITEM_PRODUTO
+FOR EACH ROW
+DECLARE
+v_total_entrada NUMBER := 0;
+v_total_saida   NUMBER := 0;
+v_disponivel    NUMBER := 0;
+PRAGMA AUTONOMOUS_TRANSACTION; 
+BEGIN
+SELECT NVL(SUM(QUANTIDADE), 0)
+INTO v_total_entrada
+FROM ESTOQUE
+WHERE CODIGO_PRO = :NEW.CODIGO_PRO;
+SELECT NVL(SUM(QUANTIDADE), 0)
+INTO v_total_saida
+FROM ITEM_PRODUTO
+WHERE CODIGO_PRO = :NEW.CODIGO_PRO;
+v_disponivel := v_total_entrada - v_total_saida;
+IF :NEW.QUANTIDADE > v_disponivel THEN
+RAISE_APPLICATION_ERROR(-20002, 
+ 'Operação Cancelada: Estoque insuficiente para o produto cód. ' || :NEW.CODIGO_PRO || 
+'. Quantidade Disponível: ' || v_disponivel || 
+'. Quantidade Solicitada: ' || :NEW.QUANTIDADE);
+END IF;
+COMMIT; 
+END;
+/
+
+-- b. Fazer uma query para verificação da existência do produto no estoque,passando como parâmetro o código do produto a ser verificado.
+
+SELECT 
+P.CODIGO,
+P.DESCRICAO,
+P.UNID_MEDIDA,
+NVL((SELECT SUM(E.QUANTIDADE) 
+FROM ESTOQUE E 
+WHERE E.CODIGO_PRO = P.CODIGO), 0) AS TOTAL_ENTRADAS,
+NVL((SELECT SUM(IP.QUANTIDADE) 
+FROM ITEM_PRODUTO IP 
+WHERE IP.CODIGO_PRO = P.CODIGO), 0) AS TOTAL_VENDIDO,
+(NVL((SELECT SUM(E.QUANTIDADE) 
+FROM ESTOQUE E 
+WHERE E.CODIGO_PRO = P.CODIGO), 0) - NVL((SELECT SUM(IP.QUANTIDADE) 
+FROM ITEM_PRODUTO IP 
+WHERE IP.CODIGO_PRO = P.CODIGO), 0)) AS SALDO_DISPONIVEL
+FROM PRODUTO P
+WHERE P.CODIGO = &codigo_produto;
+
+--a) implementar uma solução para não permitir que sejam incluidos mais produtos em item_produtos
+--de pedidos do que a disponibilidade existente no estoque.
+--Fazer tratamento com mensagem de informação para o usuario indicando o motivo para a não inclusão
+--de produtos em itens dos pedidos:
+
+CREATE OR REPLACE TRIGGER TRG_VERIFICA_ESTOQUE
+BEFORE INSERT ON ITEM_PRODUTO
+FOR EACH ROW
+DECLARE
+    v_total_entrada NUMBER := 0;
+    v_total_saida   NUMBER := 0;
+    v_disponivel    NUMBER := 0;
+
+    PRAGMA AUTONOMOUS_TRANSACTION; 
+BEGIN
+
+    SELECT NVL(SUM(QUANTIDADE), 0)
+    INTO v_total_entrada
+    FROM ESTOQUE
+    WHERE CODIGO_PRO = :NEW.CODIGO_PRO;
+
+
+    SELECT NVL(SUM(QUANTIDADE), 0)
+    INTO v_total_saida
+    FROM ITEM_PRODUTO
+    WHERE CODIGO_PRO = :NEW.CODIGO_PRO;
+
+
+    v_disponivel := v_total_entrada - v_total_saida;
+
+
+    IF :NEW.QUANTIDADE > v_disponivel THEN
+        RAISE_APPLICATION_ERROR(-20002, 
+            'ERRO DE ESTOQUE: A quantidade solicitada (' || :NEW.QUANTIDADE || 
+            ') é maior que a disponível (' || v_disponivel || 
+            ') para o produto código ' || :NEW.CODIGO_PRO || '.');
+    END IF;
+
+
+    COMMIT;
+END;
+/
+
+--B)fazer uma query para verificação da existência do produto no estoque, passando como parâmetro o código do produto a ser verificado
+
+SELECT  E.CODIGO_PRO, 
+        P.DESCRICAO, 
+        SUM(E.QUANTIDADE) as QTD_LOTE_FISICO
+FROM ESTOQUE E
+JOIN PRODUTO P ON E.CODIGO_PRO = P.CODIGO
+WHERE E.CODIGO_PRO = &codigo_produto
+GROUP BY E.CODIGO_PRO, P.DESCRICAO;
+
+COMMIT;
+
 
