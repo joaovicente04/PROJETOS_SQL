@@ -1,4 +1,5 @@
 📦 Sistema de Pedidos e Controle de Estoque
+
 Projeto completo de modelagem e implementação de banco de dados, desenvolvido como projeto acadêmico/portfólio, demonstrando domínio do ciclo completo de modelagem de dados, desde o modelo conceitual até otimização de consultas em Oracle SQL.
 
 📋 Sobre o Projeto
@@ -30,7 +31,7 @@ Modelagem Física
 
 📊 Modelagem de Dados
 1️⃣ Modelo Conceitual (DER)
-
+![modelo_conceitual](https://github.com/joaovicente04/PROJETOS_SQL/blob/main/Sistema%20de%20Pedidos%20e%20Controle%20de%20Estoque/Diagrama-Conceitual/modelo_conceitual.jpg?raw=true)
 
 Principais Decisões de Modelagem:
 Especialização de CLIENTE em PF e PJ
@@ -96,7 +97,7 @@ FONE_VENDEDOR
 
 
 2️⃣ Modelo Lógico Relacional
-
+<img width="1430" height="1001" alt="Logical" src="https://github.com/joaovicente04/PROJETOS_SQL/blob/main/Sistema%20de%20Pedidos%20e%20Controle%20de%20Estoque/Diagrama-Logico/Logical.png?raw=true" />
 
 Normalização Aplicada
 ✅ Primeira Forma Normal (1FN)
@@ -324,3 +325,14 @@ Controle de Versão: Git
 
 
 Normalização até 3FN
+
+👤 Autor
+
+João Vicente Burin Souza
+
+
+GitHub: @joaovicente04
+
+LinkedIn: https://www.linkedin.com/in/jo%C3%A3o-vicente-burin-28246635b/
+
+Email: joaovicenteburin2004@gmail.com
